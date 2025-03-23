@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculateur d'horaires</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    label, input { display: block; margin-top: 1em; }
+    button { margin-top: 2em; padding: 0.5em 1em; }
+    #result { margin-top: 2em; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>🕒 Calculateur d'heures de travail</h1>
+
+  <label>Heures déjà travaillées cette semaine :</label>
+  <input type="number" id="heures" value="15" />
+
+  <label>Jours restants à travailler :</label>
+  <input type="number" id="jours" value="3" />
+
+  <button onclick="executer()">Calculer</button>
+
+  <div id="result"></div>
+
+  <py-script>
+from datetime import datetime, timedelta
+
+def calculer(heures_travaillees, jours_restants):
+    heures_restantes = max(0, 35 - heures_travaillees)
+    heures_min = 6 * jours_restants
+    extra = max(0, heures_restantes - heures_min)
+
+    resultat = f"Heures restantes : {heures_restantes:.2f} h (dont {extra:.2f} h en extra)"
+    suggestions = []
+
+    for i in range(jours_restants):
+        extra_jour = min(extra, 5)
+        extra -= extra_jour
+        matin = max(0, extra_jour - 3)
+        soir = extra_jour - matin
+
+        arrivee = (datetime.strptime("09:00", "%H:%M") - timedelta(hours=matin)).strftime("%H:%M")
+        depart = (datetime.strptime("15:00", "%H:%M") + timedelta(hours=soir)).strftime("%H:%M")
+        suggestions.append(f"Jour {i+1} : {arrivee} → {depart}")
+
+    return resultat, suggestions
+  </py-script>
+
+  <py-script>
+from js import document
+
+def executer():
+    heures = float(document.getElementById("heures").value)
+    jours = int(document.getElementById("jours").value)
+
+    res, horaires = calculer(heures, jours)
+
+    document.getElementById("result").innerHTML = res + "<br><br>" + "<br>".join(horaires)
+  </py-script>
+
+</body>
+</html>
