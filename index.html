@@ -3,46 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Calculateur d'Horaires</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      max-width: 600px;
-    }
-    h1 {
-      color: #333;
-    }
-    .day-row {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-    }
-    .slider-container {
-      margin: 5px 0;
-    }
-    .slider-label {
-      display: inline-block;
-      width: 80px;
-    }
-    #result {
-      margin-top: 20px;
-      color: blue;
-    }
-  </style>
+  <!-- Lien vers la feuille de style CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Calculateur d'Horaires</h1>
 
   <!-- Saisie du nombre de jours déjà travaillés -->
   <div>
-    <label for="jours_travailles">
-      Nombre de jours déjà travaillés (0 à 5) :
-    </label>
+    <label for="jours_travailles">Nombre de jours déjà travaillés (0 à 5) :</label>
     <input type="number" id="jours_travailles" value="0" min="0" max="5" />
   </div>
 
-  <!-- Conteneur pour afficher les curseurs (jours déjà travaillés) -->
+  <!-- Conteneur pour les curseurs (jours déjà travaillés) -->
   <div id="workedDays"></div>
 
   <!-- Bouton de calcul -->
@@ -51,144 +24,7 @@
   <!-- Zone d'affichage du résultat -->
   <div id="result"></div>
 
-  <script>
-    // --- Configuration de base ---
-    const dayNames = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-    const TOTAL_JOURS = 5;         // 5 jours par semaine
-    const TOTAL_HEBDO = 35;        // 35 heures par semaine
-    // 09:00 = 540 min, 15:00 = 900 min
-
-    // Convertit un nombre de minutes (depuis minuit) en format "HH:MM"
-    function minutesToTime(m) {
-      const hours = Math.floor(m / 60);
-      const minutes = m % 60;
-      return String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0');
-    }
-
-    // Calcule le total d'heures travaillées (en soustrayant 1h si >= 6h)
-    // horaires = [{jour: "Lundi", arrivee: 540, depart: 900}, ...]
-    function calculHeuresTravaillees(horaires) {
-      let total = 0;
-      horaires.forEach(j => {
-        let duree = (j.depart - j.arrivee) / 60;  // en heures
-        if (duree >= 6) {
-          duree -= 1; // pause déjeuner d'1h
-        }
-        total += duree;
-      });
-      return total;
-    }
-
-    // Distribution minimale des heures supplémentaires sur les jours restants
-    // (max 5h en extra par jour, 2h matin / 3h soir)
-    function distributionMinimale(extraTotal, nbJours) {
-      const suggestions = [];
-      for (let i = 0; i < nbJours; i++) {
-        if (extraTotal > 0) {
-          const extraForDay = Math.min(extraTotal, 5);
-          extraTotal -= extraForDay;
-          let extraMatin = 0;
-          let extraSoir = 0;
-          if (extraForDay <= 3) {
-            extraSoir = extraForDay;
-          } else {
-            extraSoir = 3;
-            extraMatin = extraForDay - 3;
-          }
-          const arrivee = 540 - extraMatin * 60;  // 09:00 = 540
-          const depart  = 900 + extraSoir * 60;   // 15:00 = 900
-          suggestions.push({
-            arrivee: minutesToTime(arrivee),
-            depart: minutesToTime(depart)
-          });
-        } else {
-          // Pas d'extra nécessaire
-          suggestions.push({
-            arrivee: "09:00",
-            depart: "15:00"
-          });
-        }
-      }
-      return suggestions;
-    }
-
-    // Met à jour dynamiquement les curseurs pour chaque jour déjà travaillé
-    function updateWorkedDays() {
-      const nb = parseInt(document.getElementById("jours_travailles").value) || 0;
-      const container = document.getElementById("workedDays");
-      container.innerHTML = ""; // On vide le conteneur
-
-      for (let i = 0; i < nb; i++) {
-        const div = document.createElement("div");
-        div.className = "day-row";
-        div.innerHTML = `
-          <h3>${dayNames[i] || "Jour " + (i+1)}</h3>
-          <div class="slider-container">
-            <label class="slider-label">Arrivée:</label>
-            <input type="range" id="arrivee_${i}" min="420" max="540" step="5" value="540"
-                   oninput="document.getElementById('arr_label_${i}').innerText = minutesToTime(parseInt(this.value))" />
-            <span id="arr_label_${i}">${minutesToTime(540)}</span>
-          </div>
-          <div class="slider-container">
-            <label class="slider-label">Départ:</label>
-            <input type="range" id="depart_${i}" min="900" max="1080" step="5" value="900"
-                   oninput="document.getElementById('dep_label_${i}').innerText = minutesToTime(parseInt(this.value))" />
-            <span id="dep_label_${i}">${minutesToTime(900)}</span>
-          </div>
-        `;
-        container.appendChild(div);
-      }
-    }
-
-    // Calcule les horaires et affiche les suggestions
-    function calculerHoraires() {
-      const joursTravailles = parseInt(document.getElementById("jours_travailles").value) || 0;
-      const horaires = [];
-
-      // Récupère les valeurs des curseurs pour chaque jour déjà travaillé
-      for (let i = 0; i < joursTravailles; i++) {
-        const arr = parseInt(document.getElementById("arrivee_" + i).value);
-        const dep = parseInt(document.getElementById("depart_" + i).value);
-        horaires.push({ jour: dayNames[i], arrivee: arr, depart: dep });
-      }
-
-      // Calcul des heures déjà effectuées
-      const heuresTravaillees = calculHeuresTravaillees(horaires);
-      const joursRestants = TOTAL_JOURS - joursTravailles;
-      // 6h obligatoires par jour restant
-      const heuresMandatoiresRestantes = joursRestants * 6;
-      // Total sans extra
-      const totalSansExtra = heuresTravaillees + heuresMandatoiresRestantes;
-      // Heures supplémentaires à répartir
-      const extraTotal = Math.max(0, TOTAL_HEBDO - totalSansExtra);
-      const suggestions = distributionMinimale(extraTotal, joursRestants);
-
-      // Affichage
-      const totalRestant = TOTAL_HEBDO - heuresTravaillees;
-      let resultHTML = `
-        Il vous reste ${totalRestant.toFixed(2)} heures à travailler 
-        (en comptant 6h obligatoires par jour restant).<br><br>
-        Suggestions pour les jours restants :<br>
-      `;
-
-      suggestions.forEach((s, idx) => {
-        let nomJour = (joursTravailles + idx < dayNames.length)
-          ? dayNames[joursTravailles + idx]
-          : "Jour " + (joursTravailles + idx + 1);
-        resultHTML += `${nomJour} -> Arrivée : ${s.arrivee}, Départ : ${s.depart}<br>`;
-      });
-
-      document.getElementById("result").innerHTML = resultHTML;
-    }
-
-    // Quand on change le nombre de jours, on met à jour l'interface
-    document.getElementById("jours_travailles").addEventListener("change", updateWorkedDays);
-
-    // Initialisation au chargement
-    updateWorkedDays();
-
-    // Expose la fonction de conversion au scope global (utilisée dans oninput)
-    window.minutesToTime = minutesToTime;
-  </script>
+  <!-- Script JavaScript principal -->
+  <script src="script.js"></script>
 </body>
 </html>
