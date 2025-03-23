@@ -2,64 +2,239 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculateur d'horaires</title>
+  <title>Planification des horaires avec curseurs - Minimum Extra</title>
   <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
   <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
-    label, input { display: block; margin-top: 1em; }
-    button { margin-top: 2em; padding: 0.5em 1em; }
-    #result { margin-top: 2em; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    .day-row {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .slider-group input[type="range"] {
+      flex: 1;
+    }
+    #result {
+      margin-top: 2rem;
+      font-weight: bold;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🕒 Calculateur d'heures de travail</h1>
-
-  <label>Heures déjà travaillées cette semaine :</label>
-  <input type="number" id="heures" value="15" />
-
-  <label>Jours restants à travailler :</label>
-  <input type="number" id="jours" value="3" />
-
-  <button onclick="executer()">Calculer</button>
-
+  <h1>Planification des horaires avec curseurs - Minimum Extra</h1>
+  
+  <!-- Conteneur des jours -->
+  <div id="days-container">
+    <!-- Pour chaque jour, on crée une section. On utilisera les IDs suivants : arrival0, departure0, etc. -->
+    <!-- Lundi -->
+    <div class="day-row">
+      <h3>Lundi</h3>
+      <div class="slider-group">
+        <div>
+          <label for="arrival0">Arrivée (entre 7:00 et 9:00)</label>
+          <input type="range" id="arrival0" min="420" max="540" step="5" value="540" oninput="document.getElementById('arrival0_val').textContent = minutesToTime(this.value)">
+          <span id="arrival0_val">09:00</span>
+        </div>
+        <div>
+          <label for="departure0">Départ (entre 15:00 et 18:00)</label>
+          <input type="range" id="departure0" min="900" max="1080" step="5" value="900" oninput="document.getElementById('departure0_val').textContent = minutesToTime(this.value)">
+          <span id="departure0_val">15:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- Mardi -->
+    <div class="day-row">
+      <h3>Mardi</h3>
+      <div class="slider-group">
+        <div>
+          <label for="arrival1">Arrivée (entre 7:00 et 9:00)</label>
+          <input type="range" id="arrival1" min="420" max="540" step="5" value="540" oninput="document.getElementById('arrival1_val').textContent = minutesToTime(this.value)">
+          <span id="arrival1_val">09:00</span>
+        </div>
+        <div>
+          <label for="departure1">Départ (entre 15:00 et 18:00)</label>
+          <input type="range" id="departure1" min="900" max="1080" step="5" value="900" oninput="document.getElementById('departure1_val').textContent = minutesToTime(this.value)">
+          <span id="departure1_val">15:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- Mercredi -->
+    <div class="day-row">
+      <h3>Mercredi</h3>
+      <div class="slider-group">
+        <div>
+          <label for="arrival2">Arrivée (entre 7:00 et 9:00)</label>
+          <input type="range" id="arrival2" min="420" max="540" step="5" value="540" oninput="document.getElementById('arrival2_val').textContent = minutesToTime(this.value)">
+          <span id="arrival2_val">09:00</span>
+        </div>
+        <div>
+          <label for="departure2">Départ (entre 15:00 et 18:00)</label>
+          <input type="range" id="departure2" min="900" max="1080" step="5" value="900" oninput="document.getElementById('departure2_val').textContent = minutesToTime(this.value)">
+          <span id="departure2_val">15:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- Jeudi -->
+    <div class="day-row">
+      <h3>Jeudi</h3>
+      <div class="slider-group">
+        <div>
+          <label for="arrival3">Arrivée (entre 7:00 et 9:00)</label>
+          <input type="range" id="arrival3" min="420" max="540" step="5" value="540" oninput="document.getElementById('arrival3_val').textContent = minutesToTime(this.value)">
+          <span id="arrival3_val">09:00</span>
+        </div>
+        <div>
+          <label for="departure3">Départ (entre 15:00 et 18:00)</label>
+          <input type="range" id="departure3" min="900" max="1080" step="5" value="900" oninput="document.getElementById('departure3_val').textContent = minutesToTime(this.value)">
+          <span id="departure3_val">15:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- Vendredi -->
+    <div class="day-row">
+      <h3>Vendredi</h3>
+      <div class="slider-group">
+        <div>
+          <label for="arrival4">Arrivée (entre 7:00 et 9:00)</label>
+          <input type="range" id="arrival4" min="420" max="540" step="5" value="540" oninput="document.getElementById('arrival4_val').textContent = minutesToTime(this.value)">
+          <span id="arrival4_val">09:00</span>
+        </div>
+        <div>
+          <label for="departure4">Départ (entre 15:00 et 18:00)</label>
+          <input type="range" id="departure4" min="900" max="1080" step="5" value="900" oninput="document.getElementById('departure4_val').textContent = minutesToTime(this.value)">
+          <span id="departure4_val">15:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Nombre de jours déjà travaillés -->
+  <div style="margin: 1rem 0;">
+    <label for="jours_travailles">Nombre de jours déjà travaillés (0 à 5) :</label>
+    <input type="number" id="jours_travailles" min="0" max="5" value="0" />
+  </div>
+  
+  <button onclick="calculerHoraires()">Calculer</button>
+  
+  <!-- Zone de résultat -->
   <div id="result"></div>
 
+  <!-- Petite fonction JavaScript pour convertir les minutes en format HH:MM (utilisée dans oninput) -->
+  <script>
+    function minutesToTime(m) {
+      m = parseInt(m);
+      let h = Math.floor(m / 60);
+      let min = m % 60;
+      return (h < 10 ? "0" + h : h) + ":" + (min < 10 ? "0" + min : min);
+    }
+  </script>
+  
+  <!-- Code Python avec PyScript -->
   <py-script>
-from datetime import datetime, timedelta
-
-def calculer(heures_travaillees, jours_restants):
-    heures_restantes = max(0, 35 - heures_travaillees)
-    heures_min = 6 * jours_restants
-    extra = max(0, heures_restantes - heures_min)
-
-    resultat = f"Heures restantes : {heures_restantes:.2f} h (dont {extra:.2f} h en extra)"
-    suggestions = []
-
-    for i in range(jours_restants):
-        extra_jour = min(extra, 5)
-        extra -= extra_jour
-        matin = max(0, extra_jour - 3)
-        soir = extra_jour - matin
-
-        arrivee = (datetime.strptime("09:00", "%H:%M") - timedelta(hours=matin)).strftime("%H:%M")
-        depart = (datetime.strptime("15:00", "%H:%M") + timedelta(hours=soir)).strftime("%H:%M")
-        suggestions.append(f"Jour {i+1} : {arrivee} → {depart}")
-
-    return resultat, suggestions
-  </py-script>
-
-  <py-script>
+import datetime
 from js import document
 
-def executer():
-    heures = float(document.getElementById("heures").value)
-    jours = int(document.getElementById("jours").value)
+# Même fonctions que dans ton script Tkinter
 
-    res, horaires = calculer(heures, jours)
+def calcul_heures_travaillees(horaires):
+    total = 0
+    for jour in horaires:
+        arrivee = datetime.datetime.strptime(jour['arrivee'], "%H:%M")
+        depart = datetime.datetime.strptime(jour['depart'], "%H:%M")
+        diff = (depart - arrivee).seconds / 3600
+        if diff >= 6:
+            diff -= 1  # pause déjeuner d'1h
+        total += diff
+    return total
 
-    document.getElementById("result").innerHTML = res + "<br><br>" + "<br>".join(horaires)
+def distribution_minimale(extra_total, nb_jours):
+    suggestions = []
+    for _ in range(nb_jours):
+        if extra_total > 0:
+            extra_for_day = min(extra_total, 5)  # maximum 5h en extra par jour
+            extra_total -= extra_for_day
+            if extra_for_day <= 3:
+                extra_matin = 0
+                extra_soir = extra_for_day
+            else:
+                extra_soir = 3
+                extra_matin = extra_for_day - 3
+            arrivee_dt = datetime.datetime.strptime("09:00", "%H:%M") - datetime.timedelta(hours=extra_matin)
+            depart_dt  = datetime.datetime.strptime("15:00", "%H:%M") + datetime.timedelta(hours=extra_soir)
+            suggestions.append({
+                'arrivee': arrivee_dt.time().strftime("%H:%M"),
+                'depart': depart_dt.time().strftime("%H:%M")
+            })
+        else:
+            suggestions.append({'arrivee': "09:00", 'depart': "15:00"})
+    return suggestions
+
+def minutes_to_time(m):
+    m = int(m)
+    h = m // 60
+    mn = m % 60
+    return f"{h:02d}:{mn:02d}"
+
+def calculerHoraires():
+    # Nombre de jours déjà travaillés
+    try:
+        jours_travailles = int(document.getElementById("jours_travailles").value)
+    except Exception as e:
+        document.getElementById("result").innerHTML = "Erreur dans la saisie du nombre de jours."
+        return
+    
+    # Liste des horaires déjà réalisés
+    day_names = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+    horaires = []
+    for i in range(jours_travailles):
+        arrival = document.getElementById(f"arrival{i}").value
+        departure = document.getElementById(f"departure{i}").value
+        horaires.append({
+            'jour': day_names[i],
+            'arrivee': minutes_to_time(arrival),
+            'depart': minutes_to_time(departure)
+        })
+    try:
+        heures_travaillees = calcul_heures_travaillees(horaires)
+    except Exception as e:
+        document.getElementById("result").innerHTML = "Erreur dans le calcul des horaires."
+        return
+
+    total_jours = 5
+    jours_restants = total_jours - jours_travailles
+    heures_mandatoires_restantes = jours_restants * 6
+    total_sans_extra = heures_travaillees + heures_mandatoires_restantes
+    extra_total = max(0, 35 - total_sans_extra)
+    
+    suggestions = distribution_minimale(extra_total, jours_restants)
+    total_restant = 35 - heures_travaillees
+    res = f"Il vous reste {total_restant:.2f} heures à travailler au total sur les jours restants (en comptant les 6h obligatoires par jour).\n"
+    res += "Pour minimiser les heures supplémentaires, voici les suggestions :\n"
+    for idx, s in enumerate(suggestions):
+        if (jours_travailles + idx) < len(day_names):
+            jour_affiche = day_names[jours_travailles + idx]
+        else:
+            jour_affiche = f"Jour {jours_travailles+idx+1}"
+        res += f"{jour_affiche} -> Arrivée : {s['arrivee']}, Départ : {s['depart']}\n"
+    document.getElementById("result").innerText = res
   </py-script>
 
 </body>
